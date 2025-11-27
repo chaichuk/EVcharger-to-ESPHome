@@ -1,5 +1,5 @@
 # ChargeU EV Charger Gateway (ESPHome)
-![ЧИТАТИ УКРАЇНСЬКОЮ](https://github.com/chaichuk/EVcharger-to-ESPHome/blob/main/README.ua.md)
+[ЧИТАТИ УКРАЇНСЬКОЮ](https://github.com/chaichuk/EVcharger-to-ESPHome/blob/main/README.ua.md)
 
 An advanced ESPHome-based gateway to integrate **ChargeU Base** EV chargers into **Home Assistant**.
 
