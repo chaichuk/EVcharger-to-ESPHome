@@ -65,3 +65,9 @@ Create a new ESPHome configuration file (e.g., `chargeu-gateway.yaml`) and copy 
 
 # ⚠️ Disclaimer
 This is an unofficial integration. It interacts with the charger's web interface directly. Use it at your own risk. The author is not responsible for any issues, warranty voids, or malfunctions of your EV charger.
+
+## 💡 Author
+
+- GitHub: [@chaichuk](https://github.com/chaichuk)  
+- Telegram: [@serhii_chaichuk](https://t.me/serhii_chaichuk)
+
