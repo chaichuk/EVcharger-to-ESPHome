@@ -1,0 +1,220 @@
+esphome:
+  name: chargeu-gateway
+  includes:
+    - chargeu_component.h
+  
+  on_boot:
+    priority: 600
+    then:
+      - delay: 5s
+      - lambda: chargeu_device->setup();
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+ethernet:
+  type: LAN8720
+  mdc_pin: GPIO23
+  mdio_pin: GPIO18
+  clk_mode: GPIO0_IN
+  phy_addr: 1
+  power_pin: GPIO16 
+
+web_server:
+  port: 80
+
+api:
+  password: ""
+  reboot_timeout: 0s
+
+ota:
+  - platform: esphome
+
+logger:
+  level: DEBUG
+
+interval:
+  - interval: 100ms
+    then:
+      - lambda: |-
+          chargeu_device->loop();
+          
+          if (chargeu_device->new_data_available) {
+            id(chargeu_connected).publish_state(chargeu_device->val_is_online);
+            id(chargeu_voltage).update();
+            id(chargeu_current).update();
+            id(chargeu_session_energy).update();
+            id(chargeu_total_energy).update();
+            id(chargeu_duration).update();
+            id(chargeu_status_text).update();
+            id(chargeu_session_time_formatted).update();
+            
+            id(chargeu_led_stat).publish_state(chargeu_device->val_led_on);
+            id(chargeu_ground_stat).publish_state(chargeu_device->val_ground_check);
+            
+            // Блокування як бінарний сенсор
+            id(chargeu_lock_stat).publish_state(chargeu_device->val_is_locked);
+            
+            id(chargeu_set_amps).publish_state(chargeu_device->val_target_amps);
+            id(chargeu_led_switch).publish_state(chargeu_device->val_led_on);
+            id(chargeu_ground_switch).publish_state(chargeu_device->val_ground_check);
+            id(chargeu_lock_switch).publish_state(chargeu_device->val_is_locked);
+            id(chargeu_session_switch).publish_state(chargeu_device->val_session_active);
+            
+            chargeu_device->new_data_available = false;
+          }
+
+binary_sensor:
+  - platform: template
+    name: "ChargeU Connection Status"
+    id: chargeu_connected
+    device_class: connectivity
+    lambda: return chargeu_device->val_is_online;
+
+  - platform: template
+    name: "ChargeU LED Status"
+    id: chargeu_led_stat
+    lambda: return chargeu_device->val_led_on;
+
+  - platform: template
+    name: "ChargeU Ground Check"
+    id: chargeu_ground_stat
+    lambda: return chargeu_device->val_ground_check;
+
+  - platform: template
+    name: "ChargeU Locked State"
+    id: chargeu_lock_stat
+    lambda: return chargeu_device->val_is_locked;
+
+sensor:
+  - platform: template
+    name: "ChargeU Voltage"
+    id: chargeu_voltage
+    unit_of_measurement: V
+    accuracy_decimals: 1
+    update_interval: never
+    lambda: |-
+      if (chargeu_device->val_is_online) return chargeu_device->val_voltage;
+      else return NAN;
+
+  - platform: template
+    name: "ChargeU Current"
+    id: chargeu_current
+    unit_of_measurement: A
+    accuracy_decimals: 2
+    update_interval: never
+    lambda: |-
+      if (chargeu_device->val_is_online) return chargeu_device->val_current;
+      else return NAN;
+
+  - platform: template
+    name: "ChargeU Session Energy"
+    id: chargeu_session_energy
+    unit_of_measurement: kWh
+    accuracy_decimals: 2
+    device_class: energy
+    state_class: total_increasing
+    update_interval: never
+    lambda: |-
+      if (chargeu_device->val_is_online) return chargeu_device->val_session_energy;
+      else return NAN;
+
+  - platform: template
+    name: "ChargeU Total Energy"
+    id: chargeu_total_energy
+    unit_of_measurement: kWh
+    accuracy_decimals: 2
+    device_class: energy
+    state_class: total_increasing
+    update_interval: never
+    lambda: |-
+      if (chargeu_device->val_is_online) return chargeu_device->val_total_energy;
+      else return NAN;
+
+  - platform: template
+    name: "ChargeU Duration"
+    id: chargeu_duration
+    unit_of_measurement: s
+    icon: mdi:timer
+    update_interval: never
+    lambda: |-
+      if (chargeu_device->val_is_online) return chargeu_device->val_duration;
+      else return NAN;
+
+text_sensor:
+  - platform: template
+    name: "ChargeU Status"
+    id: chargeu_status_text
+    update_interval: never
+    lambda: return chargeu_device->val_status_text;
+
+  - platform: template
+    name: "ChargeU Session Time"
+    id: chargeu_session_time_formatted
+    icon: mdi:clock-digital
+    update_interval: never
+    lambda: |-
+      if (!chargeu_device->val_is_online) return std::string("Offline");
+      int total_seconds = (int)chargeu_device->val_duration;
+      int h = total_seconds / 3600;
+      int m = (total_seconds % 3600) / 60;
+      int s = total_seconds % 60;
+      char buffer[16];
+      sprintf(buffer, "%02d:%02d:%02d", h, m, s);
+      return std::string(buffer);
+
+# --- КЕРУВАННЯ ---
+number:
+  - platform: template
+    name: "ChargeU Set Amps"
+    id: chargeu_set_amps
+    min_value: 6
+    max_value: 32
+    step: 1
+    unit_of_measurement: A
+    set_action:
+      - lambda: chargeu_device->set_amps(x);
+    lambda: return chargeu_device->val_target_amps;
+
+switch:
+  - platform: template
+    name: "ChargeU LED Switch"
+    id: chargeu_led_switch
+    turn_on_action:
+      - lambda: chargeu_device->set_led(true);
+    turn_off_action:
+      - lambda: chargeu_device->set_led(false);
+    lambda: return chargeu_device->val_led_on;
+
+  - platform: template
+    name: "ChargeU Ground Control"
+    id: chargeu_ground_switch
+    icon: mdi:earth-box
+    turn_on_action:
+      - lambda: chargeu_device->set_ground(true);
+    turn_off_action:
+      - lambda: chargeu_device->set_ground(false);
+    lambda: return chargeu_device->val_ground_check;
+
+  # ТЕПЕР ЦЕ SWITCH (Але з іконкою замка)
+  - platform: template
+    name: "ChargeU Lock"
+    id: chargeu_lock_switch
+    icon: mdi:lock
+    turn_on_action:
+      - lambda: chargeu_device->set_lock(true);
+    turn_off_action:
+      - lambda: chargeu_device->set_lock(false);
+    lambda: return chargeu_device->val_is_locked;
+
+  - platform: template
+    name: "ChargeU One-Time Session"
+    id: chargeu_session_switch
+    icon: mdi:car-electric
+    turn_on_action:
+      - lambda: chargeu_device->set_session(true);
+    turn_off_action:
+      - lambda: chargeu_device->set_session(false);
+    lambda: return chargeu_device->val_session_active;
