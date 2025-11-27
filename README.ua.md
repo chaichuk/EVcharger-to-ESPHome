@@ -61,3 +61,7 @@ const char* CHARGER_URL  = "[http://192.168.4.1](http://192.168.4.1)";
 - GitHub: [@chaichuk](https://github.com/chaichuk)  
 - Telegram: [@serhii_chaichuk](https://t.me/serhii_chaichuk)
 
+# Скріншоти з HA
+![image](images/HA-device1.jpg)
+![image](images/HA-entities.jpg)
+![image](images/HA-card-ua.jpg)
