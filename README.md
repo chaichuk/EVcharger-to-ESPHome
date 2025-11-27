@@ -1,5 +1,6 @@
 # ChargeU EV Charger Gateway (ESPHome)
 ![ЧИТАТИ УКРАЇНСЬКОЮ]()
+
 An advanced ESPHome-based gateway to integrate **ChargeU Base** EV chargers into **Home Assistant**.
 
 This project uses a **WT32-ETH01** board to act as a smart bridge: it maintains a stable connection to Home Assistant via **Ethernet** while simultaneously connecting to the ChargeU charger's Access Point via **WiFi**.
