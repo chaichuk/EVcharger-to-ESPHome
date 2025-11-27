@@ -71,3 +71,7 @@ This is an unofficial integration. It interacts with the charger's web interface
 - GitHub: [@chaichuk](https://github.com/chaichuk)  
 - Telegram: [@serhii_chaichuk](https://t.me/serhii_chaichuk)
 
+# Images from HA
+![image](images/HA-device1.jpg)
+![image](images/HA-entities.jpg)
+![image](images/HA-card-en.jpg)
