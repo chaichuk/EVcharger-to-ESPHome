@@ -3,6 +3,8 @@
 
 An advanced ESPHome-based gateway to integrate **ChargeU Base** EV chargers into **Home Assistant**.
 
+>This project is adaptable for integrating other EV chargers that function exclusively through a WiFi Access Point and a web interface at 192.168.4.1.
+
 This project uses a **WT32-ETH01** board to act as a smart bridge: it maintains a stable connection to Home Assistant via **Ethernet** while simultaneously connecting to the ChargeU charger's Access Point via **WiFi**.
 
 ![ChargeU HA Card](images/card_example.png)
@@ -40,7 +42,7 @@ This project uses a **WT32-ETH01** board to act as a smart bridge: it maintains 
 ## ⚙️ Installation
 
 ### 1. Prepare the Component File
-Create a file named `chargeu_component.h` in your ESPHome configuration directory (e.g., `/config/esphome/`) and paste the C++ logic code provided in this repository.
+Create a file named `chargeu_component.h` in your ESPHome configuration directory (e.g., `/config/esphome/`, or `/homeassistant/esphome/`) and paste the C++ logic code provided in this repository.
 
 **Important:** Edit the top lines of `chargeu_component.h` to match your charger's credentials:
 ```cpp
@@ -59,3 +61,7 @@ Create a new ESPHome configuration file (e.g., `chargeu-gateway.yaml`) and copy 
 2. Flash the firmware using the ESPHome Dashboard.
 3. Disconnect USB, remove the IO0-GND bridge.
 4. Connect the board to the 5V Power Supply and Ethernet cable.
+5. Find new device in ESPHome integration
+
+# ⚠️ Disclaimer
+This is an unofficial integration. It interacts with the charger's web interface directly. Use it at your own risk. The author is not responsible for any issues, warranty voids, or malfunctions of your EV charger.
